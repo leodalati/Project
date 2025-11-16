@@ -8,7 +8,11 @@ let employee_record = require('../models/employee_record');
 router.get('/', async(req, res, next) => {
   try {
     const EmployeeRecords = await employee_record.find();
-    console.log(EmployeeRecords);
+    //console.log(EmployeeRecords);
+      res.render('Employee_records/list', {
+      title: 'Employee Records',
+      EmployeeRecords: EmployeeRecords
+    })
 
   }
   catch(err) {
