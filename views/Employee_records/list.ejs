@@ -11,7 +11,7 @@
           <!-- CREATE BUTTON  -->
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="text-primary mb-0"><%= title %></h1>
-            <a href="/create" class="btn btn-success">
+            <a href="/employee_records/create" class="btn btn-success">
               Add New Employee
             </a>
           </div>
@@ -41,6 +41,11 @@
                     <td class="text-center">
                       <a href="/update/<%= EmployeeRecords[count]._id %>" class="btn btn-warning btn-sm">
                         Edit
+                      </a>  
+                    </td>
+                    <td class="text-center">
+                      <a href="/employee_records/delete" class="btn btn-danger btn-sm">
+                        Delete
                       </a>
                     </td>
                   </tr>

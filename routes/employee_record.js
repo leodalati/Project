@@ -3,8 +3,8 @@ let router = express.Router();
 let mongoose = require('mongoose');
 let employee_record = require('../models/employee_record');
 
-// Read data from database
-router.get('/', async(req, res, next) => {
+//  Get route for the read employee records -- read operation
+router.get('/', async (req, res, next) => {
   try {
     const EmployeeRecords = await employee_record.find();
     res.render('employee_records/list', {
@@ -12,7 +12,7 @@ router.get('/', async(req, res, next) => {
       EmployeeRecords: EmployeeRecords
     });
   }
-  catch(err) {
+  catch (err) {
     console.error(err);
     res.render('error', { error: err });
   }
@@ -35,11 +35,11 @@ router.post('/create', async (req, res) => {
       contact_info: req.body.contact_info,
       employment_status: req.body.employment_status
     });
-    
+
     await newEmployee.save();
     res.redirect('/employee_records');
   }
-  catch(err) {
+  catch (err) {
     console.error(err);
     res.render('employee_records/create', {
       title: 'Add New Employee - Error',
@@ -55,13 +55,13 @@ router.get('/:id/edit', async (req, res) => {
     if (!employee) {
       return res.render('error', { error: 'Employee not found' });
     }
-    
+
     res.render('employee_records/update', {
       title: 'Edit Employee',
       employee: employee
     });
   }
-  catch(err) {
+  catch (err) {
     console.error(err);
     res.render('error', { error: err });
   }
@@ -77,11 +77,11 @@ router.post('/:id/update', async (req, res) => {
       contact_info: req.body.contact_info,
       employment_status: req.body.employment_status
     };
-    
+
     await employee_record.findByIdAndUpdate(req.params.id, updatedEmployee);
     res.redirect('/employee_records');
   }
-  catch(err) {
+  catch (err) {
     console.error(err);
     const employee = await employee_record.findById(req.params.id);
     res.render('employee_records/update', {
@@ -89,6 +89,32 @@ router.post('/:id/update', async (req, res) => {
       employee: employee,
       error: 'Error updating employee: ' + err.message
     });
+  }
+});
+
+// GET - Show delete listing page (same table but allows deletion)
+router.get('/delete', async (req, res) => {
+  try {
+    const EmployeeRecords = await employee_record.find();
+    res.render('employee_records/delete', {
+      title: 'Delete Employee Records',
+      EmployeeRecords: EmployeeRecords
+    });
+  } catch (err) {
+    console.error(err);
+    res.render('error', { error: err });
+  }
+});
+
+// POST - Perform deletion and redirect back to delete listing
+router.post('/delete/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    await employee_record.deleteOne({ _id: id });
+    return res.redirect('/employee_records/delete');
+  } catch (err) {
+    console.error(err);
+    return res.render('error', { error: err });
   }
 });
 

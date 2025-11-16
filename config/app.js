@@ -1,3 +1,6 @@
+// Load .env in development so process.env.MONGODB_URI is available
+require('dotenv').config();
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');

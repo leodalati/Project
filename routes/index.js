@@ -98,9 +98,9 @@ router.post('/update/:id', async function(req, res, next) {
   }
 });
 
-/* GET Delete page. */
+/* GET Delete page. Redirect to employee records delete listing */
 router.get('/delete', function(req, res, next) {
-  res.render('delete', { title: 'Delete' });
+  res.redirect('/employee_records/delete');
 });
 
 module.exports = router;

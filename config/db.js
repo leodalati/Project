@@ -1,1 +1,4 @@
-module.exports={"URI":"mongodb+srv://loganbagby-uni:KfGE5bEnMJfvwEAB@cluster0.uifcbot.mongodb.net/Final_Project"}
+// Read MongoDB connection string from environment variable for security.
+module.exports = {
+	URI: process.env.MONGODB_URI || ''
+};
