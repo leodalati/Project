@@ -32,7 +32,7 @@ router.get('/', async (req, res, next) => {
   }
   catch (err) {
     console.error(err);
-    res.render('error', { error: err });
+    res.render('error', { error: { message: err.message } });
   }
 });
 
@@ -87,7 +87,7 @@ router.get('/:id/edit', async (req, res) => {
   }
   catch (err) {
     console.error(err);
-    res.render('error', { error: err });
+    res.render('error', { error: { message: err.message } });
   }
 });
 
@@ -141,7 +141,7 @@ router.get('/delete', async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.render('error', { error: err });
+    res.render('error', { error: { message: err.message } });
   }
 });
 
@@ -158,7 +158,7 @@ router.post('/delete/:id', async (req, res) => {
     return res.redirect('/employee_records/delete');
   } catch (err) {
     console.error(err);
-    return res.render('error', { error: err });
+    return res.render('error', { error: { message: err.message } });
   }
 });
 

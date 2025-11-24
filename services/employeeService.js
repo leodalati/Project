@@ -6,6 +6,7 @@
  * database logic from the routing/display logic.
  */
 
+const mongoose = require('mongoose');
 const employee_record = require('../models/employee_record');
 
 /**
@@ -53,6 +54,12 @@ async function getEmployeeById(id) {
  */
 async function createEmployee(employeeData) {
   try {
+    // Input validation
+    if (!employeeData.name || !employeeData.position || !employeeData.department || 
+        !employeeData.contact_info || !employeeData.employment_status) {
+      throw new Error('All fields are required: name, position, department, contact_info, employment_status');
+    }
+    
     const newEmployee = new employee_record({
       name: employeeData.name,
       position: employeeData.position,
@@ -75,6 +82,17 @@ async function createEmployee(employeeData) {
  */
 async function updateEmployee(id, employeeData) {
   try {
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error('Invalid employee ID format');
+    }
+    
+    // Input validation
+    if (!employeeData.name || !employeeData.position || !employeeData.department || 
+        !employeeData.contact_info || !employeeData.employment_status) {
+      throw new Error('All fields are required: name, position, department, contact_info, employment_status');
+    }
+    
     const updatedEmployee = {
       name: employeeData.name,
       position: employeeData.position,
