@@ -105,15 +105,22 @@ router.post('/:id/update', async (req, res) => {
   }
   catch (err) {
     console.error(err);
-    // CRUD OPERATION: Fetch employee data to re-render the form
-    const employee = await employeeService.getEmployeeById(req.params.id);
     
-    // DISPLAY LOGIC: Re-render the form with error message
-    res.render('employee_records/update', {
-      title: 'Edit Employee - Error',
-      employee: employee,
-      error: err.message
-    });
+    try {
+      // CRUD OPERATION: Fetch employee data to re-render the form
+      const employee = await employeeService.getEmployeeById(req.params.id);
+      
+      // DISPLAY LOGIC: Re-render the form with error message
+      res.render('employee_records/update', {
+        title: 'Edit Employee - Error',
+        employee: employee,
+        error: err.message
+      });
+    } catch (fetchError) {
+      // If we can't fetch the employee, render generic error page
+      console.error('Error fetching employee for re-render:', fetchError);
+      res.render('error', { error: err });
+    }
   }
 });
 

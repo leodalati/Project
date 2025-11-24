@@ -93,9 +93,9 @@ async function updateEmployee(id, employeeData) {
  */
 async function deleteEmployee(id) {
   try {
-    const result = await employee_record.deleteOne({ _id: id });
+    const result = await employee_record.findByIdAndDelete(id);
     
-    if (result.deletedCount === 0) {
+    if (!result) {
       throw new Error('Employee not found');
     }
     
