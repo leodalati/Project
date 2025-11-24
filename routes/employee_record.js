@@ -1,12 +1,30 @@
+/**
+ * Employee Records Routes
+ * 
+ * This file handles HTTP request/response logic and DISPLAY of data.
+ * All CRUD operations are delegated to the employeeService layer.
+ * 
+ * SEPARATION OF CONCERNS:
+ * - Routes: Handle requests, responses, and rendering views (DISPLAY LOGIC)
+ * - Services: Handle database operations and business logic (CRUD LOGIC)
+ */
+
 let express = require('express');
 let router = express.Router();
 let mongoose = require('mongoose');
-let employee_record = require('../models/employee_record');
+// Import the service layer that handles CRUD operations
+const employeeService = require('../services/employeeService');
 
-//  Get route for the read employee records -- read operation
+/**
+ * DISPLAY LOGIC: Render the list view with employee data
+ * CRUD LOGIC: Delegated to employeeService.getAllEmployees()
+ */
 router.get('/', async (req, res, next) => {
   try {
-    const EmployeeRecords = await employee_record.find();
+    // CRUD OPERATION: Fetch all employees from MongoDB via service layer
+    const EmployeeRecords = await employeeService.getAllEmployees();
+    
+    // DISPLAY LOGIC: Render the view with the fetched data
     res.render('employee_records/list', {
       title: 'Employee Records',
       EmployeeRecords: EmployeeRecords
@@ -14,49 +32,54 @@ router.get('/', async (req, res, next) => {
   }
   catch (err) {
     console.error(err);
-    res.render('error', { error: err });
+    res.render('error', { error: { message: err.message } });
   }
 });
 
-// GET - Show Create Employee Form
+/**
+ * DISPLAY LOGIC: Show the create employee form
+ * No CRUD operation needed - just displaying the form
+ */
 router.get('/create', (req, res) => {
+  // DISPLAY LOGIC: Render the create form
   res.render('employee_records/create', {
     title: 'Add New Employee',
     employee: {}
   });
 });
 
-// POST - Handle Create Employee Form Submission
+/**
+ * DISPLAY LOGIC: Handle form submission and redirect/render response
+ * CRUD LOGIC: Delegated to employeeService.createEmployee()
+ */
 router.post('/create', async (req, res) => {
   try {
-    const newEmployee = new employee_record({
-      name: req.body.name,
-      position: req.body.position,
-      department: req.body.department,
-      contact_info: req.body.contact_info,
-      employment_status: req.body.employment_status
-    });
-
-    await newEmployee.save();
+    // CRUD OPERATION: Create new employee via service layer
+    await employeeService.createEmployee(req.body);
+    
+    // DISPLAY LOGIC: Redirect to the list page after successful creation
     res.redirect('/employee_records');
   }
   catch (err) {
     console.error(err);
+    // DISPLAY LOGIC: Re-render the form with error message
     res.render('employee_records/create', {
       title: 'Add New Employee - Error',
-      error: 'Error creating employee: ' + err.message
+      error: err.message
     });
   }
 });
 
-// GET - Show Edit Employee Form
+/**
+ * DISPLAY LOGIC: Show the edit employee form with existing data
+ * CRUD LOGIC: Delegated to employeeService.getEmployeeById()
+ */
 router.get('/:id/edit', async (req, res) => {
   try {
-    const employee = await employee_record.findById(req.params.id);
-    if (!employee) {
-      return res.render('error', { error: 'Employee not found' });
-    }
+    // CRUD OPERATION: Fetch employee by ID via service layer
+    const employee = await employeeService.getEmployeeById(req.params.id);
 
+    // DISPLAY LOGIC: Render the edit form with employee data
     res.render('employee_records/update', {
       title: 'Edit Employee',
       employee: employee
@@ -64,58 +87,78 @@ router.get('/:id/edit', async (req, res) => {
   }
   catch (err) {
     console.error(err);
-    res.render('error', { error: err });
+    res.render('error', { error: { message: err.message } });
   }
 });
 
-// POST - Handle Update Employee Form Submission
+/**
+ * DISPLAY LOGIC: Handle form submission and redirect/render response
+ * CRUD LOGIC: Delegated to employeeService.updateEmployee()
+ */
 router.post('/:id/update', async (req, res) => {
   try {
-    const updatedEmployee = {
-      name: req.body.name,
-      position: req.body.position,
-      department: req.body.department,
-      contact_info: req.body.contact_info,
-      employment_status: req.body.employment_status
-    };
-
-    await employee_record.findByIdAndUpdate(req.params.id, updatedEmployee);
+    // CRUD OPERATION: Update employee via service layer
+    await employeeService.updateEmployee(req.params.id, req.body);
+    
+    // DISPLAY LOGIC: Redirect to the list page after successful update
     res.redirect('/employee_records');
   }
   catch (err) {
     console.error(err);
-    const employee = await employee_record.findById(req.params.id);
-    res.render('employee_records/update', {
-      title: 'Edit Employee - Error',
-      employee: employee,
-      error: 'Error updating employee: ' + err.message
-    });
+    
+    try {
+      // CRUD OPERATION: Fetch employee data to re-render the form
+      const employee = await employeeService.getEmployeeById(req.params.id);
+      
+      // DISPLAY LOGIC: Re-render the form with error message
+      res.render('employee_records/update', {
+        title: 'Edit Employee - Error',
+        employee: employee,
+        error: err.message
+      });
+    } catch (fetchError) {
+      // If we can't fetch the employee, render generic error page
+      // Only pass the error message to avoid exposing sensitive information
+      console.error('Error fetching employee for re-render:', fetchError);
+      res.render('error', { error: { message: fetchError.message } });
+    }
   }
 });
 
-// GET - Show delete listing page (same table but allows deletion)
+/**
+ * DISPLAY LOGIC: Show the delete page with employee data
+ * CRUD LOGIC: Delegated to employeeService.getAllEmployees()
+ */
 router.get('/delete', async (req, res) => {
   try {
-    const EmployeeRecords = await employee_record.find();
+    // CRUD OPERATION: Fetch all employees from MongoDB via service layer
+    const EmployeeRecords = await employeeService.getAllEmployees();
+    
+    // DISPLAY LOGIC: Render the delete view with the fetched data
     res.render('employee_records/delete', {
       title: 'Delete Employee Records',
       EmployeeRecords: EmployeeRecords
     });
   } catch (err) {
     console.error(err);
-    res.render('error', { error: err });
+    res.render('error', { error: { message: err.message } });
   }
 });
 
-// POST - Perform deletion and redirect back to delete listing
+/**
+ * DISPLAY LOGIC: Handle deletion and redirect
+ * CRUD LOGIC: Delegated to employeeService.deleteEmployee()
+ */
 router.post('/delete/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-    await employee_record.deleteOne({ _id: id });
+    // CRUD OPERATION: Delete employee via service layer
+    await employeeService.deleteEmployee(req.params.id);
+    
+    // DISPLAY LOGIC: Redirect back to delete listing page
     return res.redirect('/employee_records/delete');
   } catch (err) {
     console.error(err);
-    return res.render('error', { error: err });
+    return res.render('error', { error: { message: err.message } });
   }
 });
 
