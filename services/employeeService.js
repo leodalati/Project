@@ -74,7 +74,13 @@ async function updateEmployee(id, employeeData) {
       employment_status: employeeData.employment_status
     };
     
-    return await employee_record.findByIdAndUpdate(id, updatedEmployee, { new: true });
+    const result = await employee_record.findByIdAndUpdate(id, updatedEmployee, { new: true });
+    
+    if (!result) {
+      throw new Error('Employee not found');
+    }
+    
+    return result;
   } catch (error) {
     throw new Error(`Error updating employee: ${error.message}`);
   }
@@ -87,7 +93,13 @@ async function updateEmployee(id, employeeData) {
  */
 async function deleteEmployee(id) {
   try {
-    return await employee_record.deleteOne({ _id: id });
+    const result = await employee_record.deleteOne({ _id: id });
+    
+    if (result.deletedCount === 0) {
+      throw new Error('Employee not found');
+    }
+    
+    return result;
   } catch (error) {
     throw new Error(`Error deleting employee: ${error.message}`);
   }
