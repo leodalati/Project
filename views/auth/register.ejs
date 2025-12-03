@@ -1,49 +1,60 @@
 <%- include('../partials/navbar') %>
-<main class="container">
-    <% if (message.length > 0) { %>
-        <div class="alert alert-danger mt-3">
-            <%= message%>
-        </div>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <div class="container" style="max-width: 400px;">
+    <h2><%= title %></h2>
+    
+    <% if (message && message.length > 0) { %>
+      <div class="alert alert-danger">
+        <% if (Array.isArray(message)) { %>
+          <% message.forEach(msg => { %>
+            <div><%= msg %></div>
+          <% }); %>
+        <% } else { %>
+          <%= message %>
+        <% } %>
+      </div>
     <% } %>
-    <div class="row">
-        <div class="offset-md-4 col-md-4">
-            <h1>Register Here</h1>
-            <form method="post" autocomplete="off">
-                <fieldset class="form-group">
-                    <label for="username"></label>
-                    <input type="text" class="form-control"
-                        name="username"
-                        placeholder="Enter username"
-                        id="username" required autofocus>
-                </fieldset>
-                <fieldset class="form-group">
-                    <label for="password"></label>
-                    <input type="password" class="form-control"
-                        name="password"
-                        placeholder="Enter password"
-                        id="password" required>
-                </fieldset>
-                <fieldset class="form-group">
-                    <label for="email"></label>
-                    <input type="email" class="form-control"
-                        name="email"
-                        placeholder="Enter email"
-                        id="email" required>
-                </fieldset>
-                <fieldset class="form-group">
-                    <label for="displayName"></label>
-                    <input type="displayName" class="form-control"
-                        name="displayName"
-                        placeholder="Enter display name"
-                        id="displayName" required>
-                </fieldset>
-                <fieldset class="form-group text-right">
-                    <input type="submit" class="btn btn-success" value="Register">
-                    <a href="/"></a>
-                    <input type="button" class="btn btn-warning" value="Cancel">
-                    <a href="/"></a>
-                </fieldset>
-            </form>
-        </div>
-    </div>
-</main>
+
+    <form method="POST" action="/register">
+      <div class="form-group">
+        <label for="displayName">Display Name</label>
+        <input type="text" id="displayName" name="displayName" placeholder="Enter your display name" required autofocus>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">Register</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 1.5rem; color: #666;">
+      Already have an account? <a href="/login">Login here</a>
+    </p>
+    <p style="text-align: center;">
+      <a href="/" class="btn btn-secondary" style="margin-top: 1rem;">Back to Home</a>
+    </p>
+  </div>
+</body>
+</html>

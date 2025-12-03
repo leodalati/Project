@@ -136,7 +136,7 @@ router.post('/login', function (req, res, next) {
       return next(err);
     }
     if (!user) {
-      req.flash('loginMessage', 'AuthenticationError');
+      req.flash('loginMessage', 'Incorrect username or password!');
       return res.redirect('/login');
     }
     req.logIn(user, (err) => {
@@ -189,6 +189,8 @@ router.post('/register', function (req, res, next) {
     }
   });
 });
+
+// Log a user out
 router.get('/logout', function (req, res, next) {
     req.logout(function (err) {
         if (err) { 
