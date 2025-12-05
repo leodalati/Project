@@ -2,6 +2,8 @@ let express = require('express');
 let router = express.Router();
 let mongoose = require('mongoose');
 let employee_record = require('../models/employee_record');
+
+// Authentication middleware
 function requireAuth(req, res, next) {
     if (!req.isAuthenticated()) {
         return res.redirect('/login');

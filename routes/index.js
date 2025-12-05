@@ -199,4 +199,88 @@ router.get('/logout', function (req, res, next) {
         res.redirect('/');  
     });
 });
+
+// PASSWORD CHANGE FUNCTIONALITY
+
+// GET route: Display the password change form
+router.get('/change_password', requireAuth, function (req, res, next) {
+  res.render('auth/change_password', {
+    title: 'Change Password',
+    message: req.flash('changePasswordMessage'),
+    displayName: req.user ? req.user.displayName : ''
+  });
+});
+
+// POST route: Handle password change submission
+// - Validates that both new passwords match
+// - Authenticates the user with their current password
+// - Sets the new password using passport-local-mongoose
+// - Redirects to home page on success or shows error message on failure
+router.post('/change_password', requireAuth, function (req, res, next) {
+  const currentPassword = req.body.currentPassword;
+  const newPassword = req.body.newPassword;
+  const confirmPassword = req.body.confirmPassword;
+
+  // Check if new password and confirm password match
+  if (newPassword !== confirmPassword) {
+    req.flash('changePasswordMessage', 'New passwords do not match!');
+    return res.redirect('/change_password');
+  }
+
+  // Check if new password is not empty
+  if (!newPassword || newPassword.trim() === '') {
+    req.flash('changePasswordMessage', 'New password cannot be empty!');
+    return res.redirect('/change_password');
+  }
+
+  // Check if current password is provided
+  if (!currentPassword || currentPassword.trim() === '') {
+    req.flash('changePasswordMessage', 'Please enter your current password!');
+    return res.redirect('/change_password');
+  }
+
+  // Authenticate user with current password
+  User.authenticate()(req.user.username, currentPassword, function(err, user, info) {
+    if (err) {
+      console.error("Authentication error:", err);
+      req.flash('changePasswordMessage', 'An error occurred during authentication!');
+      return res.redirect('/change_password');
+    }
+
+    // If user is not authenticated, current password is incorrect
+    if (!user) {
+      req.flash('changePasswordMessage', 'Current password is incorrect!');
+      return res.redirect('/change_password');
+    }
+
+    // Current password is correct, now set the new password
+    user.setPassword(newPassword, function(err) {
+      if (err) {
+        console.error("Error setting password:", err);
+        req.flash('changePasswordMessage', 'Error changing password. Please try again.');
+        return res.redirect('/change_password');
+      }
+
+      // Save the user with the new hashed password
+      user.save()
+        .then(() => {
+          // Password changed successfully
+          req.flash('changePasswordMessage', 'Password changed successfully! Please log in again.');
+          // Log the user out so they can log back in with new password
+          req.logout(function(logoutErr) {
+            if (logoutErr) {
+              return next(logoutErr);
+            }
+            res.redirect('/login');
+          });
+        })
+        .catch((err) => {
+          console.error("Error saving user:", err);
+          req.flash('changePasswordMessage', 'Error saving password. Please try again.');
+          res.redirect('/change_password');
+        });
+    });
+  });
+});
+
 module.exports = router;

@@ -10,8 +10,10 @@
   <a href="/employee_records/delete">Delete</a>
   <a href="/employee_records">Records</a>
   <% if (user) { %>
-    <span>Welcome, <%= user.displayName %>!</span>
+    <!--Allow authenticated users to change their password -->
+    <a href="/change_password">Change Password</a>
     <a href="/logout">Logout</a>
+    <span>Welcome, <%= user.displayName %>!</span>
   <% } else { %>
     <a href="/login">Login</a>
   <% } %>
